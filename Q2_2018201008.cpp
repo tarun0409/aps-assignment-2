@@ -36,8 +36,11 @@ class BTree
   {
     if(curr_block==NULL)
     {
+      //cout<<"\nParent is NULL\n";
       struct block * new_root = create_block();
+      //cout<<"\n\nInserting value "<<new_value<<"in"
       new_root->keys[0] = new_value;
+      new_root->filled++;
       new_root->children[0] = left_block;
       left_block->parent = new_root;
       new_root->children[1] = right_block;
@@ -46,7 +49,7 @@ class BTree
       return;
     }
     int i=0;
-    for( ; i<no_of_keys; i++)
+    for( ; i<curr_block->filled; i++)
     {
       if(curr_block->keys[i]>=new_value)
       {
@@ -132,26 +135,29 @@ class BTree
 
   void insert(int value, struct block * curr_block)
   {
+    //cout<<"\nvalue to be inserted::"<<value<<endl;
     int i=0;
-    for( ; i<no_of_keys; i++)
+    for( ; i<curr_block->filled; i++)
     {
       if(curr_block->keys[i]>=value)
       {
         break;
       }
     }
+    //cout<<"\nposition::"<<i<<endl;
     if(curr_block->children[i]!=NULL)
     {
       insert(value,curr_block->children[i]);
     }
     else
     {
+      //cout<<"\ncurr_block->filled::"<<curr_block->filled<<endl;
       if(curr_block->filled < no_of_keys)
       {
         int j = curr_block->filled - 1;
         for( ; j>=i; j--)
         {
-          curr_block[j+1] = curr_block[j];
+          curr_block->keys[j+1] = curr_block->keys[j];
         }
         curr_block->keys[i] = value;
         curr_block->filled++;
@@ -159,6 +165,7 @@ class BTree
       else
       {
         //overflow condition
+        //scout<<"\nOverflow condition\n";
         int * key_values = (int *)calloc(order, sizeof(int));
         int j=0;
         while(j<i)
@@ -175,25 +182,38 @@ class BTree
           j++;
           k++;
         }
+
+        //cout<<"\nkey_values :: ";
+        // for(int index = 0; index<order; index++)
+        // {
+        //   cout<<key_values[index]<<" ";
+        // }
+
         int mid = order/2;
         j=0;
         struct block * left_block = create_block();
         struct block * right_block = create_block();
+        //cout<<"\ncurrent j :: "<<j<<endl;
         while(j<mid)
         {
+          //cout<<"\ntransferring "<<key_values[j]<<" to left_block->keys["<<j<<"]\n";
           left_block->keys[j] = key_values[j];
           left_block->filled++; 
           j++;
+          //cout<<"\ncurrent j :: "<<j<<endl;
         }
         int new_value = key_values[j];
         j++;
         k=0;
+        //cout<<"\ncurrent j :: "<<j<<endl;
         while(j<order && k<no_of_keys)
         {
+          //cout<<"\ntransferring "<<key_values[j]<<" to right_block->keys["<<k<<"]\n";
           right_block->keys[k] = key_values[j];
           right_block->filled++;
           j++;
           k++;
+          // /cout<<"\ncurrent j :: "<<j<<endl;
         }
         handle_overflow(new_value,curr_block->parent,left_block,right_block);
       }
@@ -242,9 +262,11 @@ class BTree
 int main()
 {
   BTree b = BTree(ORDER);
-  b.insert(1);
-  b.insert(2);
-  b.insert(3);
-  b.print_tree();
+  for(int i=1; i<=50; i++)
+  {
+    b.insert(i);
+    b.print_tree();
+  }
+  
   return 0;
 }
