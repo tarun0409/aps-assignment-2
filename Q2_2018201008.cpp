@@ -9,7 +9,6 @@ struct block
   int filled;
   struct block * parent;
 };
-
 class BTree
 {
   public:
@@ -33,7 +32,6 @@ class BTree
     new_node->parent = NULL;
 
   }
-
   int is_leaf(struct block * curr_block)
   {
     int leaf = 1;
@@ -47,7 +45,6 @@ class BTree
     }
     return leaf;
   }
-
   struct block * search(int value, struct block * curr_block)
   {
     int found = 0;
@@ -78,7 +75,6 @@ class BTree
   {
     return search(value,root);
   }
-
   struct block * find_predecessor_block(int value, struct block * curr_block)
   {
     int i = 0;
@@ -104,40 +100,17 @@ class BTree
     }
     return temp_curr_block;
   }
-
-  //pass the block after deleting the required element
   void handle_underflow(struct block * curr_block)
   {
-    // cout<<"\nhandle underflow function\n";
-    // cout<<"\ncurrent block : ";
-    // for(int x=0; x<curr_block->filled; x++)
-    // {
-    //   cout<<curr_block->keys[x]<<" ";
-    // }
-    // cout<<endl;
-
-
     if(curr_block==root)
     {
-      //cout<<"\ncurrent block is root\n";
       if(curr_block->filled <=0)
       {
-        //cout<<"\nroot is empty\n";
         root=NULL;
       } 
       return;
     }
     struct block * parent = curr_block->parent;
-
-
-    // cout<<"\nparent block : ";
-    // for(int x=0; x<parent->filled; x++)
-    // {
-    //   cout<<parent->keys[x]<<" ";
-    // }
-    // cout<<endl;
-
-
     int c = 0;
     for( ; c<order; c++)
     {
@@ -146,7 +119,6 @@ class BTree
         break;
       }
     }
-    //cout<<"\nc value obtained : "<<c<<endl;
     struct block * left_sibling = NULL;
     struct block * right_sibling = NULL;
     if(c>0)
@@ -186,23 +158,9 @@ class BTree
     }
     else
     {
-      
-      //cout<<"\n\ninsufficient keys in left and right siblings\n";
-
       if(left_sibling!=NULL)
-      {
-
-        // cout<<"\nleft sibling : ";
-        // for(int x=0; x<left_sibling->filled; x++)
-        // {
-        //   cout<<left_sibling->keys[x]<<" ";
-        // }
-        // cout<<endl;
-        
+      {        
         int parent_element = parent->keys[c-1];
-
-        //cout<<"\nparent_element : "<<parent_element;
-
         struct block * new_block = create_block();
         int i=0;
         while(i<left_sibling->filled)
@@ -215,37 +173,27 @@ class BTree
         new_block->filled++;
         i++;
         int j=0;
-        //cout<<"\ncurr_block->filled = "<<curr_block->filled;
         while(j<curr_block->filled)
         {
-          //cout<<"\ncurr_block->keys["<<j<<"]="<<curr_block->keys[j];
-          //cout<<"\ntransferring to new_block->keys["<<i<<"]="<<new_block->keys[i]<<endl;
           new_block->keys[i] = curr_block->keys[j];
           new_block->filled++;
           i++;
           j++;
         }
-        //cout<<"\new_block->filled = "<<new_block->filled<<endl;
-
-        // cout<<"\nkeys in new_block : ";
-        // for(int x=0; x<new_block->filled; x++)
-        // {
-        //   cout<<new_block->keys[x]<<" ";
-        // }
-        // cout<<endl;
-
         i=0;
         if(!is_leaf(left_sibling))
         {
           while(left_sibling->children[i]!=NULL && i<order)
           {
             new_block->children[i] = left_sibling->children[i];
+            left_sibling->children[i]->parent = new_block;
             i++;
           }
           j=0;
           while(curr_block->children[j]!=NULL && j<order)
           {
             new_block->children[i] = curr_block->children[j];
+            curr_block->children[j]->parent = new_block;
             i++;
             j++;
           }
@@ -264,19 +212,10 @@ class BTree
           root = new_block;
           return;
         }
-
-        // cout<<"\nparent keys after modification : ";
-        // for(int x=0; x<parent->filled; x++)
-        // {
-        //   cout<<parent->keys[x]<<" ";
-        // }
-        // cout<<endl;
-
         k=c;
         int last_k = k;
         while(k<(order-1))
         {
-          //cout<<"\nchecking if parent->children["<<(k+1)<<"] is NULL";
           parent->children[k] = parent->children[k+1];
           last_k = k;
           k++;
@@ -285,25 +224,12 @@ class BTree
         parent->children[last_k] = NULL;
         if(parent->filled < min_no_of_keys)
         {
-          //cout<<"\nunderflow in parent\n";
           handle_underflow(parent);
         }
       }
       else if(right_sibling!=NULL)
       {
-
-        // cout<<"\right sibling : ";
-        // for(int x=0; x<right_sibling->filled; x++)
-        // {
-        //   cout<<right_sibling->keys[x]<<" ";
-        // }
-        // cout<<endl;
-
-
         int parent_element = parent->keys[c];
-
-        //cout<<"\nparent_element : "<<parent_element;
-
         struct block * new_block = create_block();
         int i=0;
         while(i<curr_block->filled)
@@ -324,42 +250,19 @@ class BTree
           j++;
         }
         i=0;
-
-        // cout<<"\nkeys in new_block : ";
-        // for(int x=0; x<new_block->filled; x++)
-        // {
-        //   cout<<new_block->keys[x]<<" ";
-        // }
-        // cout<<endl;
-
         if(!is_leaf(right_sibling))
         {
-          //cout<<"\nright sibling is not leaf\n";
           while(curr_block->children[i]!=NULL && i<order)
           {
-            //cout<<"\nadding below curr block to new_block->children["<<i<<"]"<<endl;
-
-            // for(int x=0; x<curr_block->children[i]->filled; x++)
-            // {
-            //   cout<<curr_block->children[i]->keys[x]<<" ";
-            // }
-            // cout<<endl;
-
             new_block->children[i] = curr_block->children[i];
+            curr_block->children[i]->parent = new_block;
             i++;
           }
           j=0;
           while(right_sibling->children[j]!=NULL && j<order)
           {
-            // cout<<"\nadding below right sibling block to new_block->children["<<i<<"]"<<endl;
-
-            // for(int x=0; x<right_sibling->children[j]->filled; x++)
-            // {
-            //   cout<<right_sibling->children[j]->keys[x]<<" ";
-            // }
-            // cout<<endl;
-
             new_block->children[i] = right_sibling->children[j];
+            right_sibling->children[j]->parent = new_block;
             i++;
             j++;
           }
@@ -378,14 +281,6 @@ class BTree
           root = new_block;
           return;
         }
-
-        // cout<<"\nparent keys after modification : ";
-        // for(int x=0; x<parent->filled; x++)
-        // {
-        //   cout<<parent->keys[x]<<" ";
-        // }
-        // cout<<endl;
-
         k=c+1;
         int last_k = k;
         while(k<(order-1))
@@ -398,21 +293,13 @@ class BTree
         parent->children[last_k] = NULL;
         if(parent->filled < min_no_of_keys)
         {
-          //cout<<"\nunderflow in parent\n";
           handle_underflow(parent);
         }
       } 
     }
   }
-
   void remove(int value, struct block * del_block)
   {
-    // cout<<"\nremove function\ncurrent block : ";
-    // for(int x=0; x<del_block->filled; x++)
-    // {
-    //   cout<<del_block->keys[x]<<" ";
-    // }
-    // cout<<endl;
     int i=0;
     for( ; i<del_block->filled; i++)
     {
@@ -421,10 +308,8 @@ class BTree
         break;
       }
     }
-    //cout<<"\nposition obtained : "<<i<<endl;
     if(is_leaf(del_block))
     {
-      //cout<<"\nit is leaf\n";
       if(i==(del_block->filled - 1))
       {
         del_block->filled--;
@@ -445,27 +330,14 @@ class BTree
     }
     else
     {
-      //cout<<"\nit is not leaf. finding predecessor\n";
       struct block * predecessor_block = find_predecessor_block(value,del_block);
-
-      // cout<<"\npredecessor block : ";
-      // for(int x=0; x<predecessor_block->filled; x++)
-      // {
-      //   cout<<predecessor_block->keys[x]<<" ";
-      // }
-      // cout<<endl;
-
       int pred_index = predecessor_block->filled - 1;
-
-      //cout<<"\npred_index="<<pred_index<<endl;
-
       int temp_value = del_block->keys[i];
       del_block->keys[i] = predecessor_block->keys[pred_index];
       predecessor_block->keys[pred_index] = temp_value;
       remove(value,predecessor_block);
     }
   }
-
   void remove(int value)
   {
     struct block * delete_block = search(value);
@@ -475,7 +347,6 @@ class BTree
     }
 
   }
-
   void handle_overflow(int new_value, struct block * curr_block, struct block * left_block, struct block * right_block)
   {
     if(curr_block==NULL)
@@ -655,7 +526,6 @@ class BTree
     }
     insert(value, root);
   }
-  
   void print_tree(struct block * curr_node)
   {
     cout<<"( ";
@@ -687,17 +557,15 @@ class BTree
     cout<<endl;
   }
 };
-
-
 int main()
 {
   BTree b = BTree(ORDER);
-  for(int i=1; i<=17; i++)
+  for(int i=1; i<=53; i++)
   {
     b.insert(i);
   }
   b.print_tree();
-  for(int i=1; i<=17; i++)
+  for(int i=53; i>=1; i--)
   {
     b.remove(i);
     b.print_tree();
