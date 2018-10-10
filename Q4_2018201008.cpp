@@ -8,7 +8,6 @@
 #define MAP_SIZE 32768
 using namespace std;
 
-
 template <typename T> 
 struct node
 {

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
 #include <stdlib.h>
 using namespace std;
 int partition(int * arr, int start, int end) 
@@ -55,7 +53,6 @@ int main()
     int N,K;
     cin>>N>>K;
     int * arr = (int *)malloc(N*sizeof(int));
-    vector<int> v;
     for(int i=0; i<N; i++)
     {
         arr[i] = rand()%100000;
