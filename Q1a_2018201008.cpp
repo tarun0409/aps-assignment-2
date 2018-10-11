@@ -186,7 +186,7 @@ int main()
     for(int i=0; i<str_len; i++)
     {
         ind = suffix_array[i].orig_index;
-        if(ind<str_len)
+        if(ind<(str_len/2))
         {
             break;
         }
